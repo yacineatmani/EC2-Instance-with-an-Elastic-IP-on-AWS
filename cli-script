@@ -1,0 +1,59 @@
+# Step 1: Configure AWS CLI
+# Ensure your AWS CLI is configured with the credentials and region.
+# If you haven't configured it yet, use the following command:
+aws configure
+
+# Enter the provided credentials when prompted:
+# - AWS Access Key ID
+# - AWS Secret Access Key
+# - Default region name: `us-east-1`
+# - Default output format: `json`
+
+# Step 2: Launch EC2 Instance
+# Use the following command to launch an EC2 instance named `xfusion-ec2`
+
+# Replace <your-key-pair> with your actual key pair name.
+# Replace <sg-id> with your actual security group ID.
+# Replace <subnet-id> with your actual subnet ID.
+aws ec2 run-instances \
+    --image-id ami-0a91cd140a1fc148a \  # Replace with your preferred AMI ID for Ubuntu
+    --instance-type t2.micro \
+    --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=xfusion-ec2}]' \
+    --key-name <your-key-pair> \  # Replace with your key pair name
+    --security-group-ids <sg-id> \  # Replace with your security group ID
+    --subnet-id <subnet-id> \  # Replace with your subnet ID
+    --associate-public-ip-address  # This flag ensures the instance gets a public IP
+
+# Step 3: Allocate Elastic IP
+# Allocate a new Elastic IP address with the following command:
+aws ec2 allocate-address --domain vpc
+
+# This command will return details of the allocated Elastic IP, including its `AllocationId`.
+
+# Step 4: Associate Elastic IP with EC2 Instance
+# Get the Instance ID of the `xfusion-ec2` instance:
+INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=xfusion-ec2" --query "Reservations[0].Instances[0].InstanceId" --output text)
+
+# Get the Allocation ID of the Elastic IP:
+ALLOCATION_ID=$(aws ec2 describe-addresses --query 'Addresses[0].AllocationId' --output text)
+
+# Associate the allocated Elastic IP with the EC2 instance:
+aws ec2 associate-address \
+    --instance-id $INSTANCE_ID \
+    --allocation-id $ALLOCATION_ID
+
+# Step 5: Tag the Elastic IP
+# Tag the Elastic IP with the name `datacenter-eip`:
+aws ec2 create-tags \
+    --resources $ALLOCATION_ID \
+    --tags Key=Name,Value=datacenter-eip
+
+# Step 6: Verify
+# Verify that the Elastic IP has been associated with the EC2 instance:
+aws ec2 describe-instances --instance-ids $INSTANCE_ID --query "Reservations[0].Instances[0].PublicIpAddress" --output text
+
+# Ensure that the public IP matches the Elastic IP you allocated.
+
+# Step 7: Done
+# You have now successfully created an EC2 instance and associated it with a named Elastic IP using the AWS CLI.
+
