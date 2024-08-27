@@ -19,6 +19,8 @@ To set up an EC2 instance named `datacenter-ec2` and associate an Elastic IP nam
      - Choose the default VPC and subnet.
      - Make sure to allow SSH (port 22) access in the security group to log in.
    - Click **Launch Instance**.
+![Screenshot](images/Instances-ec2.png)
+
 
 ### 3. **Allocate an Elastic IP**
    - Go to the **Elastic IPs** section in the EC2 Dashboard.
@@ -35,6 +37,7 @@ To set up an EC2 instance named `datacenter-ec2` and associate an Elastic IP nam
 ### 5. **Name the Elastic IP**
    - In the **Elastic IPs** section, select the newly created Elastic IP.
    - Click on the pencil icon next to the name and rename it to `xfusion-eip`.
+![Screenshot](images/Associate-Elastic-IP.png)
 
 ### 6. **Verify the Setup**
    - In the EC2 Dashboard, check that the `datacenter-ec2` instance is running and has the Elastic IP `datacenter-eip` associated with it.
